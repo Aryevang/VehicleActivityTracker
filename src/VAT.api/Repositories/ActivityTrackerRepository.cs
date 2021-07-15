@@ -5,16 +5,19 @@ using VAT.api.AbstractServices;
 using VAT.api.DataAccess;
 using VAT.api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace VAT.api.Repositories
 {
    public class ActivityTrackerRepository : IActivityTracker<VMT_County>
    {
       private readonly DataContext _ctx;
+      private readonly ILogger<ActivityTrackerRepository> _logger;
 
-      public ActivityTrackerRepository(DataContext ctx = null)
+      public ActivityTrackerRepository(DataContext ctx, ILogger<ActivityTrackerRepository> logger)
       {
          _ctx = ctx;
+         _logger = logger;
       }
 
       public async Task<bool> AddDataAsync(VMT_County data)
@@ -27,8 +30,9 @@ namespace VAT.api.Repositories
             
             return true;
          }
-         catch (System.Exception)
+         catch (System.Exception err)
          {
+            _logger.LogError(err.Message);
              return false;
              throw;
          }
@@ -42,8 +46,9 @@ namespace VAT.api.Repositories
              await _ctx.SaveChangesAsync();
              return true;
          }
-         catch (System.Exception)
+         catch (System.Exception err)
          {
+            _logger.LogError(err.Message);
              return false;
              throw;
          }
@@ -53,14 +58,15 @@ namespace VAT.api.Repositories
       {
          try
          {
-             var result =await _ctx.VMT_Countys.FindAsync( new VMT_County{ID=id});
+             var result =await _ctx.VMT_Countys.FindAsync(id);
              if(result!=null)
                return result;
              //A blank entity means the search didn't find any result.  
              return new VMT_County();
          }
-         catch (System.Exception)
+         catch (System.Exception err)
          {
+            _logger.LogError(err.Message);
              throw;
          }
       }
@@ -72,32 +78,31 @@ namespace VAT.api.Repositories
              var result = await _ctx.VMT_Countys.ToListAsync();
              return result;
          }
-         catch (System.Exception)
+         catch (System.Exception err)
          {
+            _logger.LogError(err.Message);
              throw;
          }
       }
 
-      public async Task<bool> UpdateDataAsync(int id, VMT_County newData)
+      public async Task<bool> UpdateDataAsync(VMT_County newData)
       {
          try
          {
-             var dataToUdate =await _ctx.VMT_Countys.FindAsync(new VMT_County{ID=id});
-             if(dataToUdate !=null)
+             //var dataToUdate =await _ctx.VMT_Countys.FindAsync(id);
+             if(newData.ID !=0)
              {
-                newData.ID = dataToUdate.ID;
-                dataToUdate = newData;
-                
+                _ctx.Update(newData);
                 await _ctx.SaveChangesAsync();
                 return true;
              }
              return false;
-        
          }
-         catch (System.Exception)
+         catch (System.Exception err)
          {
+            _logger.LogError(err.Message);
             return false;
-             throw;
+            throw;
          }
       }
    }

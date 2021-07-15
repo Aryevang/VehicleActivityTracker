@@ -32,16 +32,15 @@ namespace VAT.api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("Default")));
-            
-            services.AddScoped<IActivityTracker<VMT_County>,ActivityTrackerRepository>();
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VAT.api", Version = "v1" });
             });
+            services.AddDbContext<DataContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("Default")));
+            
+            services.AddScoped<IActivityTracker<VMT_County>,ActivityTrackerRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
