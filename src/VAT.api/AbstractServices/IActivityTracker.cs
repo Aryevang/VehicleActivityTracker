@@ -9,7 +9,7 @@ namespace VAT.api.AbstractServices
          Task<T> GetDataAsync(int id);
          Task<IEnumerable<T>> Get_All_dataAsync();
          Task<bool> AddDataAsync(T data);
-         Task<bool> UpdateDataAsync(int id,T newData);
+         Task<bool> UpdateDataAsync(T newData);
          Task<bool> DeleteDataAsync(int id);
     }
 }
