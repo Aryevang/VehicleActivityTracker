@@ -20,49 +20,55 @@ using VAT.api.Repositories;
 
 namespace VAT.api
 {
-    public class Startup
-    {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+   public class Startup
+   {
+      public Startup(IConfiguration configuration)
+      {
+         Configuration = configuration;
+      }
 
-        public IConfiguration Configuration { get; }
+      public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "VAT.api", Version = "v1" });
-            });
-            services.AddDbContext<DataContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("Default")));
-            
-            services.AddScoped<IActivityTracker<VMT_County>,ActivityTrackerRepository>();
-        }
+      // This method gets called by the runtime. Use this method to add services to the container.
+      public void ConfigureServices(IServiceCollection services)
+      {
+         services.AddControllers();
+         services.AddSwaggerGen(c =>
+         {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "VAT.api", Version = "v1" });
+         });
+         services.AddDbContext<DataContext>(options =>
+             options.UseSqlServer(Configuration.GetConnectionString("Default")));
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "VAT.api v1"));
-            }
+         services.AddScoped<IActivityTracker<VMT_County>, ActivityTrackerRepository>();
+      }
 
-            app.UseHttpsRedirection();
+      // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+      public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+      {
+        //This approach will create the DB and the table at the first run.
+         using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+         {
+            var context = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+            context.Database.EnsureCreated();
+         }          
+         if (env.IsDevelopment())
+         {
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "VAT.api v1"));
+         }
 
-            app.UseRouting();
+         app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+         app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
-    }
+         app.UseAuthorization();
+
+         app.UseEndpoints(endpoints =>
+         {
+            endpoints.MapControllers();
+         });
+      }
+   }
 }
