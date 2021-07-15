@@ -1,10 +1,12 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace VAT.api.Models
 {
     //VMT => Vehicle Miles Traveled
     public class VMT_County
     {
+        [Key]
         public int ID { get; set; }
         public int county_fips { get; set; }
         public string county_name { get; set; }
