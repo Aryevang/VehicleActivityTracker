@@ -37,8 +37,17 @@ namespace VAT.api
          {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "VAT.api", Version = "v1" });
          });
+
+
+         var server = Configuration["DBServer"] ?? "localhost";
+         var port = Configuration["DBPort"] ?? "1433";
+         var user = Configuration["DBUser"] ?? "sa";
+         var password = Configuration["DBPasssword"] ?? "Adm1n123";
+         var database = Configuration["Database"] ?? "VMT";
+
          services.AddDbContext<DataContext>(options =>
-             options.UseSqlServer(Configuration.GetConnectionString("Default")));
+             options.UseSqlServer($"Data Source={server},{port};Initial Catalog={database};Integrated Security=true;"));
+             //options.UseSqlServer($"Server={server},{port};Initial Catalog={database}; Integrated Security=true;"));
 
          services.AddScoped<IActivityTracker<VMT_County>, ActivityTrackerRepository>();
       }
